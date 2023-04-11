@@ -2,6 +2,7 @@ library listenable_future_builder;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Builds a [Widget] when given a concrete value of a [AsyncSnapshot<T>] where
@@ -218,5 +219,13 @@ class _ListenableFutureBuilderState<T extends Listenable>
         _snapshot.data != null) {
       _snapshot.data!.removeListener(_handleChange);
     }
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      DiagnosticsProperty<AsyncSnapshot<T>>('lastSnapshot', lastSnapshot),
+    );
   }
 }
