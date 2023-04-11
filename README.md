@@ -15,6 +15,8 @@ We often use [`ChangeNotifier`](https://api.flutter.dev/flutter/foundation/Chang
 
 Do this:
 
+[Live Sample](https://dartpad.dev/?id=8ea8e0e52e26be59d4cb8c056de53617)
+
 ```dart
 import 'package:flutter/material.dart';
 import 'package:listenable_future_builder/listenable_future_builder.dart';
@@ -163,12 +165,18 @@ Here's an example of how to use `ListenableFutureBuilder` with a `ValueNotifier`
 
 Clicking the floating action button will pop up an input dialog, and if you enter a value, it will create a new list with the new item. The `ListView` will display all the items in the current list. 
 
+[Live Sample](https://dartpad.dev/?id=8bb84e817cf5f1245eb25d1c52c7c217)
+
 ```dart
 import 'package:flutter/material.dart';
 import 'package:listenable_future_builder/listenable_future_builder.dart';
 
 void main() => runApp(
       MaterialApp(
+        theme: ThemeData(
+            useMaterial3: true,
+            primarySwatch: Colors.purple,
+        ),
         debugShowCheckedModeBanner: false,
         home: ListenableFutureBuilder<ValueNotifier<List<String>>>(
           listenable: () => Future<ValueNotifier<List<String>>>.delayed(
@@ -216,10 +224,10 @@ In some cases, you may need to perform cleanup operations when the `ListenableFu
 
 In this example, we create a custom `ChangeNotifier` class that manages a timer, and we use `ListenableFutureBuilder` to display the timer's current value. We also provide a `disposeListenable` function to stop the timer and clean up resources when the widget is no longer in use. The `disposeListenable` function stops the timer and releases the resources held by the `TimerNotifier` when the `ListenableFutureBuilder` is disposed. This helps to prevent resource leaks and ensure proper cleanup of the `Listenable`. This example is stateful so we can toggle the `_showListenableFutureBuilder` with the floating action button. Clicking this removes the `ListenableFutureBuilder` from the tree, which triggers the `disposeListenable` function.
 
+[Live Sample](https://dartpad.dev/?id=bf318c5a7e87e0fa1ace796247d96620)
 
 ``` dart
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:listenable_future_builder/listenable_future_builder.dart';
 
@@ -247,13 +255,17 @@ void main() {
     MaterialApp(
       debugShowCheckedModeBanner: false,
       home: MyApp(),
+      theme: ThemeData(
+        useMaterial3: true,
+        primarySwatch: Colors.orange,
+      ),
     ),
   );
 }
 
 class MyApp extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -298,6 +310,8 @@ Future<TimerNotifier> getTimerNotifier() async {
 
 You may want to implement your own version of the `Listenable` class. This example displays random colors when you click the floating action button. We create a `ColorController` class that extends `Listenable`. This controller allows you to change the color of the `ColoredBox` widget by calling the `changeColor` method. The `ListenableFutureBuilder` is used to build the widget tree with the `ColorController`, and a `FloatingActionButton` is provided to change the color randomly. The `disposeListenable` function is called when the `ListenableFutureBuilder` is removed from the widget tree, and it disposes of the `ColorController`.
 
+[Live Sample](https://dartpad.dev/?id=a98cd6da42144ea581b9ef45704dcbf2)
+
 ```dart
 import 'dart:async';
 import 'dart:math';
@@ -340,6 +354,10 @@ class ColorController extends Listenable {
 
 void main() => runApp(
       MaterialApp(
+        theme: ThemeData(
+          useMaterial3: true,
+          primarySwatch: Colors.green,
+        ),
         debugShowCheckedModeBanner: false,
         home: ListenableFutureBuilder<ColorController>(
           listenable: () => Future.delayed(
