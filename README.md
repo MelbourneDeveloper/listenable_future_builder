@@ -218,7 +218,7 @@ void main() => runApp(
     );
 ```
 
-### Disposal
+## Disposal
 
 In some cases, you may need to perform cleanup operations when the `ListenableFutureBuilder` is disposed. This is necessary when listeners hold resources that need to be released when the widget is no longer in use. To handle disposal, provide a `disposeListenable` function. This function will be called with the `Listenable` instance when the `ListenableFutureBuilder` is disposed.
 
@@ -306,7 +306,7 @@ Future<TimerNotifier> getTimerNotifier() async {
 }
 ```
 
-### Custom Listenable
+## Custom Listenable
 
 You may want to implement your own version of the `Listenable` class. This example displays random colors when you click the floating action button. We create a `ColorController` class that extends `Listenable`. This controller allows you to change the color of the `ColoredBox` widget by calling the `changeColor` method. The `ListenableFutureBuilder` is used to build the widget tree with the `ColorController`, and a `FloatingActionButton` is provided to change the color randomly. The `disposeListenable` function is called when the `ListenableFutureBuilder` is removed from the widget tree, and it disposes of the `ColorController`.
 
