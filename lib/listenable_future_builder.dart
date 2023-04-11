@@ -129,7 +129,7 @@ class ListenableFutureBuilder<T extends Listenable> extends StatefulWidget {
 
   /// Provides an opportunity to dispose of the [Listenable] when the
   /// [_ListenableFutureBuilderState] is disposed.
-  final Future<T> Function(T listenable)? disposeListenable;
+  final Future<void> Function(T listenable)? disposeListenable;
 
   /// A [AsyncListenableBuilder] which builds a widget depending on the
   /// [Listenable] such as a [ChangeNotifier]
