@@ -2,27 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:listenable_future_builder/listenable_future_builder.dart';
 
 void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) => MaterialApp(
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: const MyHomePage(),
-      );
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) =>
-      ListenableFutureBuilder<ValueNotifier<int>>(
+  runApp(
+    MaterialApp(
+      theme: ThemeData(
+        useMaterial3: true,
+        primarySwatch: Colors.blue,
+      ),
+      home: ListenableFutureBuilder<ValueNotifier<int>>(
         listenable: getController,
         builder: (context, child, snapshot) => Scaffold(
           appBar: AppBar(),
@@ -47,7 +33,10 @@ class MyHomePage extends StatelessWidget {
             child: const Icon(Icons.add),
           ),
         ),
-      );
+      ),
+      debugShowCheckedModeBanner: false,
+    ),
+  );
 }
 
 Future<ValueNotifier<int>> getController() async =>
