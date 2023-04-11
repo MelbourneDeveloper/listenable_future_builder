@@ -221,6 +221,7 @@ class _ListenableFutureBuilderState<T extends Listenable>
     }
   }
 
+  // coverage:ignore-start
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
@@ -228,4 +229,5 @@ class _ListenableFutureBuilderState<T extends Listenable>
       DiagnosticsProperty<AsyncSnapshot<T>>('lastSnapshot', lastSnapshot),
     );
   }
+  // coverage:ignore-end
 }
