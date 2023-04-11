@@ -4,13 +4,16 @@ import 'package:listenable_future_builder/listenable_future_builder.dart';
 
 void main() {
   testWidgets('ListenableFutureBuilder updates UI when future resolves',
-      (WidgetTester tester) async {
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: ListenableFutureBuilder<ValueNotifier<int>>(
           listenable: () async => ValueNotifier<int>(42),
-          builder: (BuildContext context, Widget? child,
-                  AsyncSnapshot<ValueNotifier<int>> snapshot) =>
+          builder: (
+            context,
+            child,
+            snapshot,
+          ) =>
               snapshot.connectionState == ConnectionState.done
                   ? Text('${snapshot.data!.value}')
                   : const CircularProgressIndicator(),
@@ -31,7 +34,7 @@ void main() {
   });
 
   testWidgets('ListenableFutureBuilder updates UI when future errors',
-      (WidgetTester tester) async {
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: ListenableFutureBuilder<ValueNotifier<int>>(
@@ -39,13 +42,16 @@ void main() {
             const Duration(milliseconds: 500),
             () => throw Exception('Oops'),
           ),
-          builder: (BuildContext context, Widget? child,
-              AsyncSnapshot<Listenable> snapshot) {
+          builder: (
+            context,
+            child,
+            snapshot,
+          ) {
             if (snapshot.connectionState == ConnectionState.done &&
                 snapshot.error != null) {
               final dynamic error = snapshot.error as dynamic;
               // ignore: avoid_dynamic_calls
-              final String errorMessage = 'Error: ${error.message}';
+              final errorMessage = 'Error: ${error.message}';
               return Text(errorMessage);
             } else {
               return const CircularProgressIndicator();
@@ -68,13 +74,16 @@ void main() {
   });
 
   testWidgets('ListenableFutureBuilder updates UI when future returns null',
-      (WidgetTester tester) async {
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: ListenableFutureBuilder<ValueNotifier<String?>>(
           listenable: () async => ValueNotifier<String?>(null),
-          builder: (BuildContext context, Widget? child,
-                  AsyncSnapshot<ValueNotifier<String?>> snapshot) =>
+          builder: (
+            context,
+            child,
+            snapshot,
+          ) =>
               snapshot.connectionState == ConnectionState.done
                   ? Text(
                       snapshot.data?.value == null
@@ -100,7 +109,7 @@ void main() {
 
   testWidgets(
       'ListenableFutureBuilder updates UI when future takes a while to resolve',
-      (WidgetTester tester) async {
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: ListenableFutureBuilder<ValueNotifier<int>>(
@@ -108,8 +117,11 @@ void main() {
             const Duration(seconds: 2),
             () => ValueNotifier<int>(42),
           ),
-          builder: (BuildContext context, Widget? child,
-                  AsyncSnapshot<ValueNotifier<int>> snapshot) =>
+          builder: (
+            context,
+            child,
+            snapshot,
+          ) =>
               snapshot.connectionState == ConnectionState.done
                   ? Text('${snapshot.data!.value}')
                   : const CircularProgressIndicator(),
@@ -130,15 +142,18 @@ void main() {
   });
 
   testWidgets('ListenableFutureBuilder updates UI when the notifier is changed',
-      (WidgetTester tester) async {
-    final ValueNotifier<int> notifier = ValueNotifier<int>(0);
+      (tester) async {
+    final notifier = ValueNotifier<int>(0);
 
     await tester.pumpWidget(
       MaterialApp(
         home: ListenableFutureBuilder<ValueNotifier<int>>(
           listenable: () async => notifier,
-          builder: (BuildContext context, Widget? child,
-                  AsyncSnapshot<ValueNotifier<int>> snapshot) =>
+          builder: (
+            context,
+            child,
+            snapshot,
+          ) =>
               snapshot.connectionState == ConnectionState.done
                   ? Text('${snapshot.data!.value}')
                   : const CircularProgressIndicator(),
@@ -170,14 +185,16 @@ void main() {
   ///previous AsyncSnapshot, it will hold onto the Listenable as well. This
   ///test ensures that the State doesn't hold onto the Listenable after
   ///disposal.
-  testWidgets('ListenableFutureBuilder disposes correctly',
-      (WidgetTester tester) async {
+  testWidgets('ListenableFutureBuilder disposes correctly', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: ListenableFutureBuilder<ValueNotifier<int?>>(
           listenable: () async => ValueNotifier<int?>(3),
-          builder: (BuildContext context, Widget? child,
-                  AsyncSnapshot<ValueNotifier<int?>> snapshot) =>
+          builder: (
+            context,
+            child,
+            snapshot,
+          ) =>
               snapshot.connectionState == ConnectionState.done
                   ? Text('${snapshot.data!.value}')
                   : const CircularProgressIndicator(),
@@ -193,7 +210,7 @@ void main() {
     //Triggers disposal
     await tester.pumpWidget(const SizedBox());
 
-    final AsyncSnapshot<ValueNotifier<int?>> snapshot =
+    final snapshot =
         //We have lastSnapshot so we can test this. Alternative approaches to
         //testing for this are absolutely welcome, and we can remove this
         //getter if it is too problematic.
@@ -206,26 +223,29 @@ void main() {
   });
 
   testWidgets('Dispose calls disposeListenable when the widget is disposed',
-      (WidgetTester tester) async {
+      (tester) async {
     // Create a ValueNotifier to be used in the test
-    final ValueNotifier<int> valueNotifier = ValueNotifier<int>(0);
-    bool disposeListenableCalled = false;
+    final valueNotifier = ValueNotifier<int>(0);
+    var disposeListenableCalled = false;
 
     // Define the disposeListenable function
     Future<ValueNotifier<int>> disposeListenable(
-        ValueNotifier<int> listenable) {
+      ValueNotifier<int> listenable,
+    ) {
       disposeListenableCalled = true;
       return Future<ValueNotifier<int>>.value(listenable);
     }
 
     // Define a simple widget tree with the ListenableFutureBuilder
-    final MaterialApp app = MaterialApp(
+    final app = MaterialApp(
       home: ListenableFutureBuilder<ValueNotifier<int>>(
         listenable: () async => valueNotifier,
-        builder: (BuildContext context, Widget? child,
-            AsyncSnapshot<ValueNotifier<int>> listenableSnapshot) {
-          return const Text('Test');
-        },
+        builder: (
+          context,
+          child,
+          listenableSnapshot,
+        ) =>
+            const Text('Test'),
         disposeListenable: disposeListenable,
       ),
     );

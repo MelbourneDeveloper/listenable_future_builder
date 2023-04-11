@@ -1,5 +1,7 @@
 library listenable_future_builder;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 /// Builds a [Widget] when given a concrete value of a [AsyncSnapshot<T>] where
@@ -182,15 +184,14 @@ class _ListenableFutureBuilderState<T extends Listenable>
 
   @override
   Widget build(BuildContext context) => Builder(
-        builder: (BuildContext context) =>
-            widget.builder(context, widget.child, _snapshot),
+        builder: (context) => widget.builder(context, widget.child, _snapshot),
       );
 
   @override
   void dispose() {
     _unsubscribe();
     if (_snapshot.data != null) {
-      widget.disposeListenable?.call(_snapshot.data!);
+      unawaited(widget.disposeListenable?.call(_snapshot.data!));
     }
     _snapshot = AsyncSnapshot<T>.nothing();
     super.dispose();
@@ -199,10 +200,11 @@ class _ListenableFutureBuilderState<T extends Listenable>
   void _handleChange() => setState(() {});
 
   void _subscribe() {
-    final Object callbackIdentity = Object();
+    final callbackIdentity = Object();
     _activeCallbackIdentity = callbackIdentity;
+    // ignore: discarded_futures
     widget.listenable().then<void>(
-      (T data) {
+      (data) {
         if (_activeCallbackIdentity == callbackIdentity) {
           setState(() {
             _snapshot = AsyncSnapshot<T>.withData(ConnectionState.done, data);

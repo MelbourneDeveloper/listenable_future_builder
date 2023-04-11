@@ -1,4 +1,7 @@
-include: package:flutter_lints/flutter.yaml
+include: package:austerity/analysis_options.yaml
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+analyzer:
+  errors:
+    lines_longer_than_80_chars: ignore
+    comment_references: ignore
+    avoid_types_on_closure_parameters: ignore
