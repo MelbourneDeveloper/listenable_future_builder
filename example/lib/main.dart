@@ -13,7 +13,7 @@ void main() {
         builder: (context, child, snapshot) => Scaffold(
           appBar: AppBar(),
           body: Center(
-              child: snapshot.connectionState == ConnectionState.done
+              child: snapshot.hasData
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -26,7 +26,9 @@ void main() {
                         ),
                       ],
                     )
-                  : const CircularProgressIndicator.adaptive()),
+                  : snapshot.hasError
+                      ? const Text('Error')
+                      : const CircularProgressIndicator.adaptive()),
           floatingActionButton: FloatingActionButton(
             onPressed: () => snapshot.data?.value++,
             tooltip: 'Increment',

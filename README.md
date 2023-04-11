@@ -6,7 +6,7 @@
 
 ## Introduction
 
-We often use `ChangeNotifier` and `ValueNotifier<>` as controllers behind `StatelessWidget`s. However, there are two issues:
+We often use [`ChangeNotifier`](https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html) and [`ValueNotifier<>`](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html) as controllers behind `StatelessWidget`s. However, there are two issues:
 
 - A vanilla `StatelessWidget` cannot hold onto the controller because it could rebuild and lose the state at any time.
 - We sometimes need to do async work before we can use the controller.
@@ -31,7 +31,7 @@ void main() {
         builder: (context, child, snapshot) => Scaffold(
           appBar: AppBar(),
           body: Center(
-              child: snapshot.connectionState == ConnectionState.done
+              child: snapshot.hasData
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -44,7 +44,9 @@ void main() {
                         ),
                       ],
                     )
-                  : const CircularProgressIndicator.adaptive()),
+                  : snapshot.hasError
+                      ? const Text('Error')
+                      : const CircularProgressIndicator.adaptive()),
           floatingActionButton: FloatingActionButton(
             onPressed: () => snapshot.data?.value++,
             tooltip: 'Increment',
@@ -133,3 +135,5 @@ class _MyAppState extends State<MyApp> {
 Future<ValueNotifier<int>> getController() async =>
     Future.delayed(const Duration(seconds: 2), () => ValueNotifier<int>(0));
 ```
+
+Notice that the second version is far more verbose than the version with `ListenableFutureBuilder`. This is because `ListenableFutureBuilder` creates your controller for you on the first call and hangs onto the controller for the lifespan of the widget. That means you don't need to create a `StatefulWidget` / `State` pair to hold onto the controller.
