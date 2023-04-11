@@ -269,8 +269,81 @@ Future<TimerNotifier> getTimerNotifier() async {
 }
 ```
 
+### Custom Listenable
 
+You may want to implement your own version of the `Listenable` class. This example displays random colors when you click the floating action button. We create a `ColorController` class that extends `Listenable`. This controller allows you to change the color of the `ColoredBox` widget by calling the `changeColor` method. The `ListenableFutureBuilder` is used to build the widget tree with the `ColorController`, and a `FloatingActionButton` is provided to change the color randomly. The `disposeListenable` function is called when the `ListenableFutureBuilder` is removed from the widget tree, and it disposes of the `ColorController`.
 
-Contributing
+```dart
+import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:listenable_future_builder/listenable_future_builder.dart';
+
+class ColorController extends Listenable {
+  final List<VoidCallback> _listeners = [];
+
+  Color _color = Colors.red;
+
+  Color get color => _color;
+
+  void changeColor(Color newColor) {
+    _color = newColor;
+    notifyListeners();
+  }
+
+  @override
+  void addListener(VoidCallback listener) {
+    _listeners.add(listener);
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    _listeners.remove(listener);
+  }
+
+  void notifyListeners() {
+    for (final listener in _listeners) {
+      listener();
+    }
+  }
+
+  void dispose() {
+    _listeners.clear();
+  }
+}
+
+void main() => runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: ListenableFutureBuilder<ColorController>(
+          listenable: () => Future.delayed(
+              const Duration(seconds: 2), () => ColorController()),
+          builder: (context, child, snapshot) => Scaffold(
+            body: Center(
+              child: snapshot.hasData
+                  ? ColoredBox(
+                      color: snapshot.data!.color,
+                      child: const SizedBox(width: 100, height: 100),
+                    )
+                  : snapshot.hasError
+                      ? const Text('Error')
+                      : const CircularProgressIndicator.adaptive(),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => snapshot.data?.changeColor(
+                  Colors.primaries[Random().nextInt(Colors.primaries.length)]),
+              tooltip: 'Change color',
+              child: const Icon(Icons.color_lens),
+            ),
+          ),
+          disposeListenable: (colorController) async =>
+              colorController.dispose(),
+        ),
+      ),
+    );
+```
+
+## Contributing
 
 Contributions are welcome! If you find a bug or have a feature request, please open an issue on GitHub. If you'd like to contribute code, feel free to fork the repository and submit a pull request.
