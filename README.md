@@ -6,7 +6,7 @@
 
 ## Introduction
 
-We often use [`ChangeNotifier`](https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html) and [`ValueNotifier<>`](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html) as controllers behind `StatelessWidget`s. However, there are two issues:
+We often use [`ChangeNotifier`](https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html) and [`ValueNotifier<>`](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html) as controllers behind [`StatelessWidget`](https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html)s. However, there are two issues:
 
 - A vanilla `StatelessWidget` cannot hold onto the controller because it could rebuild and lose the state at any time.
 - We sometimes need to do async work before we can use the controller.
@@ -157,33 +157,58 @@ import 'package:listenable_future_builder/listenable_future_builder.dart';
 
 ### Usage
 
-`ListenableFutureBuilder` works with any [`Listenable'](https://api.flutter.dev/flutter/foundation/Listenable-class.html), such as a `ChangeNotifier` or `ValueNotifier`. To use `ListenableFutureBuilder`, provide a `listenable` function that returns a `Future` of your `Listenable` controller and a `builder` function that defines how to build the widget depending on the state of the `AsyncSnapshot`. Here's an example of how to use `ListenableFutureBuilder` with a `ValueNotifier`:
+`ListenableFutureBuilder` works with any [`Listenable`](https://api.flutter.dev/flutter/foundation/Listenable-class.html), such as a `ChangeNotifier` or `ValueNotifier`. To use `ListenableFutureBuilder`, provide a `listenable` function that returns a `Future` of your `Listenable` controller and a `builder` function that defines how to build the widget depending on the state of the `AsyncSnapshot`. 
+
+Here's an example of how to use `ListenableFutureBuilder` with a `ValueNotifier`. The `builder` function should check the state of the `AsyncSnapshot` to determine if the data is ready, an error occurred, or if it's still loading. We display a [`CircularProgressIndicator`](https://api.flutter.dev/flutter/material/CircularProgressIndicator-class.html) while waiting, show an error message if an error occurs, and display the value once it's available. 
+
+Clicking the floating action button will pop up an input dialog, and if you enter a value, it will create a new list with the new item. The `ListView` will display all the items in the current list. 
 
 ```dart
-ListenableFutureBuilder<ValueNotifier<int>>(
-  listenable: getController,
-  builder: (context, child, snapshot) => Scaffold(
-    appBar: AppBar(),
-    body: Center(
-      child: snapshot.hasData
-        ? Text('${snapshot.data!.value}')
-        : snapshot.hasError
-            ? const Text('Error')
-            : const CircularProgressIndicator.adaptive(),
-    ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: () => snapshot.data?.value++,
-      tooltip: 'Increment',
-      child: const Icon(Icons.add),
-    ),
-  ),
-)
+import 'package:flutter/material.dart';
+import 'package:listenable_future_builder/listenable_future_builder.dart';
 
-Future<ValueNotifier<int>> getController() async =>
-    Future.delayed(const Duration(seconds: 2), () => ValueNotifier<int>(0));
+void main() => runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: ListenableFutureBuilder<ValueNotifier<List<String>>>(
+          listenable: () => Future<ValueNotifier<List<String>>>.delayed(
+              const Duration(seconds: 2),
+              () => ValueNotifier<List<String>>([])),
+          builder: (context, child, snapshot) => Scaffold(
+            appBar: AppBar(title: const Text('To-do List')),
+            body: snapshot.hasData
+                ? ListView.builder(
+                    itemCount: snapshot.data!.value.length,
+                    itemBuilder: (context, index) =>
+                        ListTile(title: Text(snapshot.data!.value[index])),
+                  )
+                : snapshot.hasError
+                    ? const Text('Error')
+                    : const CircularProgressIndicator.adaptive(),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Add a new to-do item'),
+                  content: TextField(
+                    onSubmitted: (value) {
+                      Navigator.of(context).pop();
+                      List<String> updatedList =
+                          List<String>.from(snapshot.data!.value);
+                      updatedList.add(value);
+                      snapshot.data!.value = updatedList;
+                    },
+                  ),
+                ),
+              ),
+              tooltip: 'Add a new item',
+              child: const Icon(Icons.add),
+            ),
+          ),
+        ),
+      ),
+    );
 ```
-
-The `builder` function should check the state of the `AsyncSnapshot` to determine if the data is ready, an error occurred, or if it's still loading. In this example, we display a [`CircularProgressIndicator`](https://api.flutter.dev/flutter/material/CircularProgressIndicator-class.html) while waiting, show an error message if an error occurs, and display the value once it's available.
 
 ### Disposal
 
