@@ -5,3 +5,4 @@ analyzer:
     lines_longer_than_80_chars: ignore
     comment_references: ignore
     avoid_types_on_closure_parameters: ignore
+    diagnostic_describe_all_properties: ignore
