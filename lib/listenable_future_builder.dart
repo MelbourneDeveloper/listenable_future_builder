@@ -169,7 +169,6 @@ class ListenableFutureBuilder<T extends Listenable> extends StatefulWidget {
 
 class _ListenableFutureBuilderState<T extends Listenable>
     extends State<ListenableFutureBuilder<T>> {
-  Object? _activeCallbackIdentity;
   late AsyncSnapshot<T> _snapshot;
 
   ///Use this to access the last snapshot that was passed to the builder
@@ -200,28 +199,22 @@ class _ListenableFutureBuilderState<T extends Listenable>
   void _handleChange() => setState(() {});
 
   void _subscribe() {
-    final callbackIdentity = Object();
-    _activeCallbackIdentity = callbackIdentity;
     // ignore: discarded_futures
     widget.listenable().then<void>(
       (data) {
-        if (_activeCallbackIdentity == callbackIdentity) {
-          setState(() {
-            _snapshot = AsyncSnapshot<T>.withData(ConnectionState.done, data);
-            _snapshot.data!.addListener(_handleChange);
-          });
-        }
+        setState(() {
+          _snapshot = AsyncSnapshot<T>.withData(ConnectionState.done, data);
+          _snapshot.data!.addListener(_handleChange);
+        });
       },
       onError: (Object error, StackTrace stackTrace) {
-        if (_activeCallbackIdentity == callbackIdentity) {
-          setState(() {
-            _snapshot = AsyncSnapshot<T>.withError(
-              ConnectionState.done,
-              error,
-              stackTrace,
-            );
-          });
-        }
+        setState(() {
+          _snapshot = AsyncSnapshot<T>.withError(
+            ConnectionState.done,
+            error,
+            stackTrace,
+          );
+        });
       },
     );
 
@@ -231,7 +224,6 @@ class _ListenableFutureBuilderState<T extends Listenable>
   }
 
   void _unsubscribe() {
-    _activeCallbackIdentity = null;
     if (_snapshot.connectionState == ConnectionState.done &&
         _snapshot.data != null) {
       _snapshot.data!.removeListener(_handleChange);
