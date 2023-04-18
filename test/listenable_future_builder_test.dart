@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:listenable_future_builder/listenable_future_builder.dart';
+import 'package:listenable_future_builder/listenable_propagator.dart';
+
+// ignore: avoid_relative_lib_imports
+import '../example/lib/main.dart';
 
 void main() {
   testWidgets('ListenableFutureBuilder updates UI when future resolves',
@@ -261,5 +265,75 @@ void main() {
 
     // Check if disposeListenable was called
     expect(disposeListenableCalled, true);
+  });
+
+  testWidgets('Test the Example app, which includes ListenablePropagator',
+      (WidgetTester tester) async {
+    // Build the app and trigger a frame.
+    await tester.pumpWidget(const MyApp());
+
+    // Verify that the initial state shows CircularProgressIndicator.
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.text('Error'), findsNothing);
+
+    // Trigger the asynchronous operation and wait for it to complete.
+    await tester.pump(const Duration(seconds: 2));
+
+    // Verify that the app displays the initial count value.
+    expect(
+      find.text('You have pushed the button this many times:'),
+      findsOneWidget,
+    );
+    expect(find.text('0'), findsOneWidget);
+
+    // Tap the FloatingActionButton and trigger a frame.
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pump();
+
+    // Verify that the counter value has incremented.
+    expect(find.text('1'), findsOneWidget);
+
+    // Tap the FloatingActionButton again and trigger a frame.
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pump();
+
+    // Verify that the counter value has incremented again.
+    expect(find.text('2'), findsOneWidget);
+  });
+
+  testWidgets('ListenablePropagator exception test',
+      (WidgetTester tester) async {
+    // Create a simple widget that tries to access the Listenable.
+
+    // ignore: unused_local_variable
+    FlutterError? flutterError;
+
+    final testWidget = Builder(
+      builder: (BuildContext context) {
+        try {
+          ListenablePropagator.of<ValueNotifier<int>>(context);
+          // ignore: avoid_catching_errors
+        } on FlutterError catch (error) {
+          flutterError = error;
+          expect(error, isInstanceOf<FlutterError>());
+
+          return const SizedBox.shrink();
+        }
+        return const SizedBox.shrink();
+      },
+    );
+
+    // Build the test widget without wrapping it in a ListenablePropagator.
+    await tester.pumpWidget(MaterialApp(home: Scaffold(body: testWidget)));
+
+    // Verify that the exception is thrown and caught by the test.
+    expect(tester.takeException(), isNull);
+
+    expect(
+      flutterError.toString(),
+      contains(
+        'No ListenableProvider<ValueNotifier<int>> found in the widget tree.',
+      ),
+    );
   });
 }
