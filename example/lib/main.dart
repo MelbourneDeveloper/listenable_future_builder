@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:listenable_future_builder/listenable_future_builder.dart';
+import 'package:listenable_future_builder/listenable_propagator.dart';
 
 void main() {
   runApp(
@@ -14,17 +15,9 @@ void main() {
           appBar: AppBar(),
           body: Center(
               child: snapshot.hasData
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const Text(
-                          'You have pushed the button this many times:',
-                        ),
-                        Text(
-                          '${snapshot.data!.value}',
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                      ],
+                  ? ListenablePropagator(
+                      listenable: snapshot.data!,
+                      child: const CounterDisplay(),
                     )
                   : snapshot.hasError
                       ? const Text('Error')
@@ -39,6 +32,26 @@ void main() {
       debugShowCheckedModeBanner: false,
     ),
   );
+}
+
+class CounterDisplay extends StatelessWidget {
+  const CounterDisplay({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text(
+            'You have pushed the button this many times:',
+          ),
+          Text(
+            '${ListenablePropagator.of<ValueNotifier<int>>(context).value}',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ],
+      );
 }
 
 Future<ValueNotifier<int>> getController() async =>
