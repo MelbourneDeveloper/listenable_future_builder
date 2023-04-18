@@ -12,15 +12,17 @@ class ListenablePropagator<T extends Listenable> extends InheritedWidget {
     super.key,
   });
 
+  ///The [Listenable] to propagate
   final T listenable;
 
+  ///Get the [Listenable] from the [ListenableFutureBuilder].
   static T of<T extends Listenable>(BuildContext context) {
-    final provider =
+    final propagator =
         context.dependOnInheritedWidgetOfExactType<ListenablePropagator<T>>();
-    if (provider == null) {
+    if (propagator == null) {
       throw FlutterError('No ListenableProvider<$T> found in the widget tree.');
     }
-    return provider.listenable;
+    return propagator.listenable;
   }
 
   @override
