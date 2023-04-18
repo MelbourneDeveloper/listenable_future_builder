@@ -18,6 +18,8 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         home: ListenableFutureBuilder<ValueNotifier<int>>(
+          //We get an instance of the controller here and ListenableFutureBuilder
+          //will hold onto it and rebuild the widget tree on notifications
           listenable: getController,
           builder: (context, child, snapshot) => Scaffold(
             appBar: AppBar(),
@@ -25,6 +27,7 @@ class MyApp extends StatelessWidget {
               child: _scaffoldBody(snapshot),
             ),
             floatingActionButton: FloatingActionButton(
+              //We increment the counter if the controller is ready
               onPressed: () => snapshot.data?.value++,
               tooltip: 'Increment',
               child: const Icon(Icons.add),
@@ -36,6 +39,9 @@ class MyApp extends StatelessWidget {
 
   Widget _scaffoldBody(AsyncSnapshot<ValueNotifier<int>> snapshot) {
     if (snapshot.hasData) {
+      //We don't have to use ListenablePropagator here, but it
+      //allows us to access the controller from anywhere in the widget tree without
+      //passing it down as a constructor parameter
       return ListenablePropagator(
         listenable: snapshot.data!,
         child: const CounterDisplay(),
