@@ -3,35 +3,49 @@ import 'package:listenable_future_builder/listenable_future_builder.dart';
 import 'package:listenable_future_builder/listenable_propagator.dart';
 
 void main() {
-  runApp(
-    MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        primarySwatch: Colors.blue,
-      ),
-      home: ListenableFutureBuilder<ValueNotifier<int>>(
-        listenable: getController,
-        builder: (context, child, snapshot) => Scaffold(
-          appBar: AppBar(),
-          body: Center(
-              child: snapshot.hasData
-                  ? ListenablePropagator(
-                      listenable: snapshot.data!,
-                      child: const CounterDisplay(),
-                    )
-                  : snapshot.hasError
-                      ? const Text('Error')
-                      : const CircularProgressIndicator.adaptive()),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => snapshot.data?.value++,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        theme: ThemeData(
+          useMaterial3: true,
+          primarySwatch: Colors.blue,
+        ),
+        home: ListenableFutureBuilder<ValueNotifier<int>>(
+          listenable: getController,
+          builder: (context, child, snapshot) => Scaffold(
+            appBar: AppBar(),
+            body: Center(
+              child: _scaffoldBody(snapshot),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => snapshot.data?.value++,
+              tooltip: 'Increment',
+              child: const Icon(Icons.add),
+            ),
           ),
         ),
-      ),
-      debugShowCheckedModeBanner: false,
-    ),
-  );
+        debugShowCheckedModeBanner: false,
+      );
+
+  Widget _scaffoldBody(AsyncSnapshot<ValueNotifier<int>> snapshot) {
+    if (snapshot.hasData) {
+      return ListenablePropagator(
+        listenable: snapshot.data!,
+        child: const CounterDisplay(),
+      );
+    } else if (snapshot.hasError) {
+      return const Text('Error');
+    }
+
+    return const CircularProgressIndicator.adaptive();
+  }
 }
 
 class CounterDisplay extends StatelessWidget {
