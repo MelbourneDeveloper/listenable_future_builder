@@ -33,22 +33,23 @@ void main() {
         builder: (context, child, snapshot) => Scaffold(
           appBar: AppBar(),
           body: Center(
-              child: snapshot.hasData
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const Text(
-                          'You have pushed the button this many times:',
-                        ),
-                        Text(
-                          '${snapshot.data!.value}',
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                      ],
-                    )
-                  : snapshot.hasError
-                      ? const Text('Error')
-                      : const CircularProgressIndicator.adaptive()),
+            child: switch (snapshot) {
+              AsyncSnapshot(hasData: true) => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text(
+                      'You have pushed the button this many times:',
+                    ),
+                    Text(
+                      '${snapshot.data!.value}',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                  ],
+                ),
+              AsyncSnapshot(hasError: true) => const Text('Error'),
+              AsyncSnapshot() => const CircularProgressIndicator.adaptive()
+            },
+          ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => snapshot.data?.value++,
             tooltip: 'Increment',
@@ -116,18 +117,20 @@ class _MyAppState extends State<MyApp> {
               ? AnimatedBuilder(
                   animation: _controller!,
                   builder: (context, child) => Center(
-                          child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          const Text(
-                            'You have pushed the button this many times:',
-                          ),
-                          Text(
-                            '${_controller!.value}',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                        ],
-                      )))
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const Text(
+                          'You have pushed the button this many times:',
+                        ),
+                        Text(
+                          '${_controller!.value}',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               : const CircularProgressIndicator.adaptive(),
         ),
         debugShowCheckedModeBanner: false,
@@ -174,8 +177,8 @@ import 'package:listenable_future_builder/listenable_future_builder.dart';
 void main() => runApp(
       MaterialApp(
         theme: ThemeData(
-            useMaterial3: true,
-            primarySwatch: Colors.purple,
+          useMaterial3: true,
+          primarySwatch: Colors.purple,
         ),
         debugShowCheckedModeBanner: false,
         home: ListenableFutureBuilder<ValueNotifier<List<String>>>(
@@ -184,15 +187,17 @@ void main() => runApp(
               () => ValueNotifier<List<String>>([])),
           builder: (context, child, snapshot) => Scaffold(
             appBar: AppBar(title: const Text('To-do List')),
-            body: snapshot.hasData
-                ? ListView.builder(
+            body: Center(
+              child: switch (snapshot) {
+                AsyncSnapshot(hasData: true) => ListView.builder(
                     itemCount: snapshot.data!.value.length,
                     itemBuilder: (context, index) =>
                         ListTile(title: Text(snapshot.data!.value[index])),
-                  )
-                : snapshot.hasError
-                    ? const Text('Error')
-                    : const CircularProgressIndicator.adaptive(),
+                  ),
+                AsyncSnapshot(hasError: true) => const Text('Error'),
+                AsyncSnapshot() => const CircularProgressIndicator.adaptive()
+              },
+            ),
             floatingActionButton: FloatingActionButton(
               onPressed: () => showDialog(
                 context: context,
@@ -264,6 +269,8 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -272,32 +279,32 @@ class _MyAppState extends State<MyApp> {
   bool _showListenableFutureBuilder = true;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: _showListenableFutureBuilder
-            ? ListenableFutureBuilder<TimerNotifier>(
-                listenable: getTimerNotifier,
-                builder: (context, child, snapshot) => snapshot.hasData
-                    ? Text('Elapsed seconds: ${snapshot.data!.seconds}')
-                    : snapshot.hasError
-                        ? const Text('Error')
-                        : const CircularProgressIndicator.adaptive(),
-                disposeListenable: (timerNotifier) async =>
-                    timerNotifier.disposeTimer(),
-              )
-            : const Text('ListenableFutureBuilder removed.'),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => setState(
-          () => _showListenableFutureBuilder = !_showListenableFutureBuilder,
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: _showListenableFutureBuilder
+              ? ListenableFutureBuilder<TimerNotifier>(
+                  listenable: getTimerNotifier,
+                  builder: (context, child, snapshot) => switch (snapshot) {
+                    AsyncSnapshot(hasData: true) =>
+                      Text('Elapsed seconds: ${snapshot.data!.seconds}'),
+                    AsyncSnapshot(hasError: true) => const Text('Error'),
+                    AsyncSnapshot() =>
+                      const CircularProgressIndicator.adaptive()
+                  },
+                  disposeListenable: (timerNotifier) async =>
+                      timerNotifier.disposeTimer(),
+                )
+              : const Text('ListenableFutureBuilder removed.'),
         ),
-        tooltip: 'Toggle ListenableFutureBuilder',
-        child: const Icon(Icons.toggle_on),
-      ),
-    );
-  }
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => setState(
+            () => _showListenableFutureBuilder = !_showListenableFutureBuilder,
+          ),
+          tooltip: 'Toggle ListenableFutureBuilder',
+          child: const Icon(Icons.toggle_on),
+        ),
+      );
 }
 
 Future<TimerNotifier> getTimerNotifier() async {
