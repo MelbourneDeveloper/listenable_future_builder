@@ -1,3 +1,4 @@
+///Pooty
 library listenable_future_builder;
 
 import 'dart:async';
@@ -190,6 +191,9 @@ class _ListenableFutureBuilderState<T extends Listenable>
   void _handleChange() => setState(() {});
 
   void _subscribe() {
+    // This seems to be an issue with the linter. This code doesn't
+    // discard the future as it is used in the then callback.
+    // There is a similar issue here: https://github.com/dart-lang/linter/issues/4375
     // ignore: discarded_futures
     widget.listenable().then<void>(
       (data) {

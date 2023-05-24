@@ -24,7 +24,14 @@ class MyApp extends StatelessWidget {
           builder: (context, child, snapshot) => Scaffold(
             appBar: AppBar(),
             body: Center(
-              child: _scaffoldBody(snapshot),
+              child: switch (snapshot) {
+                AsyncSnapshot(hasData: true) => ListenablePropagator(
+                    listenable: snapshot.data!,
+                    child: const CounterDisplay(),
+                  ),
+                AsyncSnapshot(hasError: true) => const Text('Error'),
+                AsyncSnapshot() => const CircularProgressIndicator.adaptive()
+              },
             ),
             floatingActionButton: FloatingActionButton(
               //We increment the counter if the controller is ready
@@ -37,21 +44,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
       );
 
-  Widget _scaffoldBody(AsyncSnapshot<ValueNotifier<int>> snapshot) {
-    if (snapshot.hasData) {
-      //We don't have to use ListenablePropagator here, but it
-      //allows us to access the controller from anywhere in the widget tree without
-      //passing it down as a constructor parameter
-      return ListenablePropagator(
-        listenable: snapshot.data!,
-        child: const CounterDisplay(),
-      );
-    } else if (snapshot.hasError) {
-      return const Text('Error');
-    }
 
-    return const CircularProgressIndicator.adaptive();
-  }
 }
 
 class CounterDisplay extends StatelessWidget {
