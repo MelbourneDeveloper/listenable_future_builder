@@ -371,14 +371,14 @@ void main() => runApp(
               const Duration(seconds: 2), () => ColorController()),
           builder: (context, child, snapshot) => Scaffold(
             body: Center(
-              child: snapshot.hasData
-                  ? ColoredBox(
-                      color: snapshot.data!.color,
-                      child: const SizedBox(width: 100, height: 100),
-                    )
-                  : snapshot.hasError
-                      ? const Text('Error')
-                      : const CircularProgressIndicator.adaptive(),
+              child: switch (snapshot) {
+                AsyncSnapshot(hasData: true) => ColoredBox(
+                    color: snapshot.data!.color,
+                    child: const SizedBox(width: 100, height: 100),
+                  ),
+                AsyncSnapshot(hasError: true) => const Text('Error'),
+                AsyncSnapshot() => const CircularProgressIndicator.adaptive()
+              },
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () => snapshot.data?.changeColor(
