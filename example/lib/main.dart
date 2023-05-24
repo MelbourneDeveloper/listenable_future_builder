@@ -18,8 +18,9 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         home: ListenableFutureBuilder<ValueNotifier<int>>(
-          //We get an instance of the controller here and ListenableFutureBuilder
-          //will hold onto it and rebuild the widget tree on notifications
+          //We get an instance of the controller here and
+          //ListenableFutureBuilder will hold onto it and rebuild the widget
+          //tree on notifications
           listenable: getController,
           builder: (context, child, snapshot) => Scaffold(
             appBar: AppBar(),
@@ -43,8 +44,6 @@ class MyApp extends StatelessWidget {
         ),
         debugShowCheckedModeBanner: false,
       );
-
-
 }
 
 class CounterDisplay extends StatelessWidget {
