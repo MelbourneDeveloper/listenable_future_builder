@@ -1,4 +1,4 @@
-///Main library
+///Main library for ListenableFutureBuilder
 library listenable_future_builder;
 
 import 'dart:async';

@@ -1,4 +1,4 @@
-///Pooty
+///Main library for ListenableFutureBuilder
 library listenable_future_builder;
 
 import 'package:flutter/material.dart';
