@@ -1,4 +1,4 @@
-///Pooty
+///Main library
 library listenable_future_builder;
 
 import 'dart:async';
