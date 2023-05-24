@@ -1,10 +1,10 @@
 name: listenable_future_builder
 description: A general purpose Builder widget that allows you to do async work on controller initialization
-version: 0.0.3-beta
+version: 1.0.0-beta
 homepage: https://github.com/MelbourneDeveloper/listenable_future_builder
 
 environment:
-  sdk: '>=2.19.6 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
